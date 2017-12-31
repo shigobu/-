@@ -14,6 +14,8 @@ namespace タイマー
     {
         double textsize = 4;
         System.Timers.Timer timer;
+        //Stopwatchオブジェクトを作成する
+        System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
 
         public Form1()
         {
@@ -22,7 +24,7 @@ namespace タイマー
             // タイマーの生成
             timer = new System.Timers.Timer();
             timer.Elapsed += new ElapsedEventHandler(OnElapsed_TimersTimer);
-            timer.Interval = 500;
+            timer.Interval = 30;
             timer.SynchronizingObject = this;
         }
 
@@ -31,10 +33,11 @@ namespace タイマー
             label1.Font = new Font(label1.Font.FontFamily, (int)(this.Width / textsize));
         }
 
-        int sec = 0; // 計測時間
+        long msec = 0; // 計測時間
 
         private void viewtime()
         {
+            long sec = msec / 1000;
             label1.Text = "" /*+ sec / 36000 % 10 + sec / 3600 % 10 +":" */
                              + sec / 600 % 6 + sec / 60 % 10 +":"
                              + sec / 10 % 6 + sec % 10;
@@ -49,14 +52,12 @@ namespace タイマー
         private void OnElapsed_TimersTimer(object sender, ElapsedEventArgs e)
         {
             timeCount++;
-            if(timeCount > 1)
-            {
-                sec--;
-                timeCount = 0;
-            }
-            
+
+            msec =- sw.ElapsedMilliseconds;
+
+
             viewtime();
-            if(sec < (tenmetuSec + 1) && tenmetu)
+            if(msec < (tenmetuSec + 1) && tenmetu)
             {
                 if(label1.BackColor == SystemColors.Control)
                 {
@@ -68,7 +69,7 @@ namespace タイマー
                 }
             }
             
-            if (0 == sec)
+            if (0 >= msec)
             {
                 timer.Enabled = false;
                 Console.Beep(beepFreq, 2000);
@@ -80,35 +81,36 @@ namespace タイマー
 
         private void HourButton_Click(object sender, EventArgs e)
         {
-            sec += 3600;
-            if (sec >= 360000) sec = 0;
+            msec += 3600 * 1000;
+            if (msec >= 360000) msec = 0;
             viewtime();
             resetButton.Enabled = true;
         }
 
         private void MinButton_Click(object sender, EventArgs e)
         {
-            sec += 60;
+            msec += 60 * 1000;
             viewtime();
             resetButton.Enabled = true;
         }
 
         private void SecButton_Click(object sender, EventArgs e)
         {
-            sec += 10;
+            msec += 10 * 1000;
             viewtime();
             resetButton.Enabled = true;
         }
 
-        int startTime = 0;
+        long startTime = 0;
         int buttonClick = 0;
         private void startButton_Click(object sender, EventArgs e)
         {
-            if (0 == sec) return;
-            if(startTime < sec)
+            if (0 >= msec) return;
+            if(startTime < msec)
             {
-                startTime = sec;
+                startTime = msec;
             }
+            sw.Start();
             timer.Enabled = true;
             this.stopButton.Enabled = true;
             this.startButton.Enabled = false;
@@ -121,6 +123,7 @@ namespace タイマー
 
         private void stopButton_Click(object sender, EventArgs e)
         {
+            sw.Stop();
             timer.Enabled = false;
             this.stopButton.Enabled = false;
             this.startButton.Enabled = true;
@@ -137,16 +140,17 @@ namespace タイマー
             if (buttonClick > 1)
             {
                 label1.Text = "00:00";
-                sec = 0;
+                msec = 0;
                 buttonClick = 0;
                 startTime = 0;
                 resetButton.Enabled = false;
             }
             else
             {
-                sec = startTime;
+                msec = startTime;
                 viewtime();
             }
+            sw.Reset();
             label1.BackColor = SystemColors.Control;
         }
 
