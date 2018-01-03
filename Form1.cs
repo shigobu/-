@@ -51,10 +51,7 @@ namespace タイマー
         int beepFreq = 2500;
         private void OnElapsed_TimersTimer(object sender, ElapsedEventArgs e)
         {
-            timeCount++;
-
-            msec =- sw.ElapsedMilliseconds;
-
+            msec = startTime - sw.ElapsedMilliseconds;
 
             viewtime();
             if(msec < (tenmetuSec + 1) && tenmetu)
