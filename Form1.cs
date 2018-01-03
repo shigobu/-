@@ -44,7 +44,6 @@ namespace タイマー
             label1.Refresh();
         }
 
-        int timeCount = 0;
         bool tenmetu = true;
         int tenmetuSec = 10;
         Color tenmetuColor = Color.Red;
